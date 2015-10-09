@@ -38,6 +38,12 @@
 
 (def get-yearmonth "Returns the yearmonth of an entry" (comp yearmonth :date))
 
+(defn yearmonth->str
+  "A human readable yearmonth"
+  [[year month]]
+  (let [months ["Jan" "Feb" "Mars" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"]]
+    (str (months month) " " year)))
+
 (defn timespan
   "Represents a timespan as a sequence of yearmonths"
   [yearmonth]
@@ -95,7 +101,7 @@
      {
       :x {
           :type "category"
-          :categories timespan
+          :categories (map yearmonth->str timespan)
           }
       }}))
 
