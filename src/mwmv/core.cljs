@@ -19,7 +19,7 @@
 
 (defn parse-row
   [row]
-  (let [columns (str/split row #",")
+  (let [columns (str/split row #",") ; FIXME: Entries with commas in the description will fail
         [_ date category description _ _ _ _ _ _ _ amount _] columns]
     {:date        (parse-date date)
      :category    (parse-string category)
@@ -46,8 +46,8 @@
   (lazy-seq
     (let [[year month] yearmonth]
       (cons yearmonth
-            (if (= month 12)
-              (timespan [(inc year) 1])
+            (if (= month 11)
+              (timespan [(inc year) 0])
               (timespan [year (inc month)]))))))
 
 (defn total-per-month
@@ -74,8 +74,7 @@
            (cons category (total-per-month entries timespan))))))
 
 
-
-
+(def my-timespan (take 10 (timespan [2014 11])))
 
 ;;; ------------------- JavaScript stuff ---------------------
 
@@ -85,20 +84,17 @@
 
 (defn generate-line-chart
   [csv timespan]
-  (clj->js {
-   :bindto chart-element-selector
-            :data {
-                   :columns (columns csv timespan)
-                   ; :types { :data1 "line" :data2 "line" } } })
-                   }
-            :axis {
-                   :x {
-                       :type "category"
-                       :categories timespan
-                       }
-                   }}))
-
-(def my-timespan (take 10 (timespan [2014 12])))
+  (clj->js
+    {
+     :bindto chart-element-selector
+     :data   { :columns (columns csv timespan) }
+     :axis
+     {
+      :x {
+          :type "category"
+          :categories timespan
+          }
+      }}))
 
 (defn render-chart
   [chart]
