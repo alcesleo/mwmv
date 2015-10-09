@@ -10,9 +10,12 @@
 ;   ;; optionally touch your app-state to force rerendering depending on your application
 ;   (swap! app-state update-in [:__figwheel_counter] inc))
 
+; TODO: What's up with the gap in bills?
+
 (defn parse-string [s]    (subs s 1 (dec (count s))))
 (defn parse-date   [date] (js/Date. (str/join "-" (reverse (str/split date #"/")))))
 (defn parse-float  [f]    (.parseFloat js/window f))
+(defn round-cents  [f]    (/ (Math/round (* 100 f)) 100))
 
 (defn parse-row
   [row]
@@ -31,6 +34,7 @@
          (map parse-row)))
 
 (defn yearmonth
+  "Returns a vector like [2015 2] from a date object in Feb 2015"
   [date]
   [(.getFullYear date) (.getMonth date)])
 
@@ -55,7 +59,8 @@
         (filter #(= yearmonth (get-yearmonth %)))
         (map :amount)
         (map -) ; Invert to show expenses as positive
-        (reduce + 0)))
+        (reduce + 0)
+        (round-cents)))
     timespan))
 
 (defn columns
@@ -94,7 +99,6 @@
                    }}))
 
 (def my-timespan (take 10 (timespan [2014 12])))
-(def c3-data (generate-line-chart csv my-timespan))
 
 (defn render-chart
   [chart]
