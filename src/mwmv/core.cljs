@@ -44,16 +44,6 @@
   (let [months ["Jan" "Feb" "Mars" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"]]
     (str (months month) " " year)))
 
-(defn timespan
-  "Represents a timespan as a sequence of yearmonths"
-  [yearmonth]
-  (lazy-seq
-    (let [[year month] yearmonth]
-      (cons yearmonth
-            (if (= month 11)
-              (timespan [(inc year) 0])
-              (timespan [year (inc month)]))))))
-
 (defn get-timespan
   "Returns a timespan covering exactly the provided entries"
   [entries]
