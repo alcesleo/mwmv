@@ -10,8 +10,6 @@
 ;   ;; optionally touch your app-state to force rerendering depending on your application
 ;   (swap! app-state update-in [:__figwheel_counter] inc))
 
-; TODO: What's up with the gap in bills?
-
 (defn parse-string [s]    (subs s 1 (dec (count s))))
 (defn parse-date   [date] (js/Date. (str/join "-" (reverse (str/split date #"/")))))
 (defn parse-float  [f]    (.parseFloat js/window f))
@@ -50,6 +48,14 @@
               (timespan [(inc year) 0])
               (timespan [year (inc month)]))))))
 
+(defn get-timespan
+  "Returns a timespan covering exactly the provided entries"
+  [entries]
+  (->> entries
+       (map (comp yearmonth :date))
+       (distinct)
+       (sort)))
+
 (defn total-per-month
   "Total expenses for every month in timespan"
   [entries timespan]
@@ -65,16 +71,13 @@
 
 (defn columns
   "Creates a sequence of columns"
-  [csv timespan]
-  (->>
-    csv
-    (parse-csv)
-    (group-by :category)
-    (map (fn [[category entries]]
-           (cons category (total-per-month entries timespan))))))
+  [entries timespan]
+  (->> entries
+       (group-by :category)
+       (map (fn [[category entries]]
+              (cons category (total-per-month entries timespan))))))
 
 
-(def my-timespan (take 10 (timespan [2014 11])))
 
 ;;; ------------------- JavaScript stuff ---------------------
 
@@ -83,11 +86,11 @@
 (def chart-element-selector "#chart")
 
 (defn generate-line-chart
-  [csv timespan]
+  [entries timespan]
   (clj->js
     {
      :bindto chart-element-selector
-     :data   { :columns (columns csv timespan) }
+     :data   { :columns (columns entries timespan) }
      :axis
      {
       :x {
@@ -109,9 +112,10 @@
   reader
   "load"
   #(render-chart
-     (generate-line-chart
-       (.-result reader)
-       my-timespan)))
+     (let [entries (parse-csv (.-result reader))]
+      (generate-line-chart
+        entries
+        (get-timespan entries)))))
 
 ; Read file
 (.addEventListener
