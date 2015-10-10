@@ -87,13 +87,10 @@
     {
      :bindto chart-element-selector
      :data   { :columns (columns entries timespan) }
-     :axis
-     {
-      :x {
-          :type "category"
-          :categories (map yearmonth->str timespan)
-          }
-      }}))
+     :axis   {
+              :x {
+                  :type "category"
+                  :categories (map yearmonth->str timespan)}}}))
 
 (defn render-chart
   [chart]
