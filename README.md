@@ -2,6 +2,8 @@
 
 Displays a graph from a CSV file exported from MoneyWise.
 
+![demo](./demo.png)
+
 ## Setup
 
 To get an interactive development environment run:
